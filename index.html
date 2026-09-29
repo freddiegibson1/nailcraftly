@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f5ef">
+  <meta name="description" content="A little inspiration for your next manicure. Browse nail ideas by mood, save your favorites, and find your next set.">
+  <title>Nailcraftly — find your next set</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f8f5ef;
+      --ink: #222622;
+      --muted: #77796f;
+      --line: #dedbd2;
+      --red: #d34d3e;
+      --green: #c5d6b6;
+      --serif: "Playfair Display", Georgia, serif;
+      --sans: "DM Sans", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    .shell { max-width: 1440px; margin: 0 auto; padding: 0 5.5%; }
+
+    .topbar {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; }
+    .brand-mark { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 50%; background: var(--red); color: white; }
+    .brand-mark svg { width: 17px; height: 17px; }
+    .nav-links { display: flex; align-items: center; gap: 32px; height: 100%; }
+    .nav-link { height: 100%; position: relative; display: flex; align-items: center; color: var(--muted); font-size: 13px; font-weight: 600; }
+    .nav-link.active { color: var(--ink); }
+    .nav-link.active::after { content: ""; position: absolute; height: 2px; background: var(--red); left: 0; right: 0; bottom: -1px; }
+    .saved-count { margin-left: 5px; color: var(--red); }
+    .top-note { color: var(--muted); font-size: 12px; }
+
+    main { padding-bottom: 72px; }
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 230px;
+      align-items: end;
+      gap: 40px;
+      padding: 43px 0 29px;
+    }
+    .eyebrow { margin: 0 0 12px; color: var(--red); font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { margin: 0; font: 600 clamp(37px, 4.2vw, 58px)/1.04 var(--serif); letter-spacing: 0; }
+    h1 em { color: var(--red); font-weight: 600; }
+    .intro-copy { max-width: 210px; justify-self: end; margin: 0 0 4px; color: var(--muted); font-size: 13px; line-height: 1.65; }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 15px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .filters { display: flex; align-items: center; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+    .filters::-webkit-scrollbar { display: none; }
+    .filter-button { flex: 0 0 auto; border: 1px solid transparent; border-radius: 99px; background: transparent; padding: 9px 14px; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: background .18s ease, color .18s ease, border-color .18s ease; }
+    .filter-button:hover { color: var(--ink); }
+    .filter-button[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: white; }
+    .tools { display: flex; align-items: center; gap: 10px; flex: 0 0 auto; }
+    .search-wrap { position: relative; }
+    .search-wrap svg { position: absolute; left: 12px; top: 50%; width: 15px; height: 15px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+    .search { width: 178px; height: 38px; border: 1px solid var(--line); border-radius: 3px; outline: none; background: transparent; padding: 0 12px 0 35px; font-size: 12px; }
+    .search:focus { border-color: var(--ink); }
+    .surprise-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 38px; border: 0; border-radius: 3px; background: var(--green); padding: 0 13px; font-size: 11px; font-weight: 700; cursor: pointer; transition: background .18s ease; }
+    .surprise-button:hover { background: #b6cba4; }
+    .surprise-button svg { width: 14px; height: 14px; }
+
+    .results-line { display: flex; align-items: center; justify-content: space-between; padding: 21px 0 14px; }
+    .results-title { margin: 0; font: 600 21px/1.2 var(--serif); }
+    .result-count { color: var(--muted); font-size: 11px; }
+    .gallery { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px 17px; }
+    .idea-card { min-width: 0; animation: rise-in .45s both; }
+    .image-wrap { position: relative; overflow: hidden; aspect-ratio: 4 / 4.8; background: #e8e2d8; }
+    .idea-image { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .55s cubic-bezier(.2,.7,.2,1); }
+    .idea-card:hover .idea-image { transform: scale(1.035); }
+    .save-button { position: absolute; top: 11px; right: 11px; display: grid; place-items: center; width: 35px; height: 35px; border: 0; border-radius: 50%; background: rgba(248,245,239,.94); cursor: pointer; }
+    .save-button svg { width: 17px; height: 17px; fill: transparent; transition: fill .15s ease, color .15s ease; }
+    .save-button[aria-pressed="true"] svg { fill: var(--red); color: var(--red); }
+    .view-button { position: absolute; left: 10px; right: 10px; bottom: 10px; min-height: 37px; border: 0; background: rgba(248,245,239,.95); font-size: 11px; font-weight: 700; opacity: 0; transform: translateY(5px); cursor: pointer; transition: opacity .2s ease, transform .2s ease; }
+    .idea-card:hover .view-button, .view-button:focus-visible { opacity: 1; transform: translateY(0); }
+    .idea-info { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; padding-top: 11px; }
+    .idea-name { margin: 0; font-size: 13px; font-weight: 700; line-height: 1.35; }
+    .idea-detail { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .idea-tag { flex: 0 0 auto; margin-top: 1px; color: var(--red); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; }
+    .empty-state { grid-column: 1/-1; min-height: 230px; display: grid; place-content: center; text-align: center; }
+    .empty-state h2 { margin: 0 0 8px; font: 600 25px var(--serif); }
+    .empty-state p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    dialog { width: min(760px, calc(100% - 32px)); max-height: min(620px, calc(100% - 32px)); padding: 0; border: 0; background: var(--paper); color: var(--ink); }
+    dialog::backdrop { background: rgba(24, 27, 24, .58); }
+    .modal-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: 420px; }
+    .modal-image { width: 100%; height: 100%; max-height: 620px; object-fit: cover; background: #e8e2d8; }
+    .modal-content { align-self: center; padding: 38px; }
+    .modal-content h2 { margin: 0 0 9px; font: 600 31px/1.15 var(--serif); }
+    .modal-content p { color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .modal-meta { margin-top: 24px; padding-top: 17px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+    .modal-actions { display: flex; gap: 9px; margin-top: 25px; }
+    .modal-actions button { min-height: 40px; border: 1px solid var(--ink); background: transparent; padding: 0 13px; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .modal-actions .primary { background: var(--ink); color: white; }
+    .modal-close { position: absolute; top: 12px; right: 12px; z-index: 1; display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--paper); cursor: pointer; }
+    .modal-close svg { width: 16px; height: 16px; }
+    .toast { position: fixed; z-index: 3; left: 50%; bottom: 22px; transform: translate(-50%, 12px); padding: 11px 16px; background: var(--ink); color: white; font-size: 12px; opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .more-ideas { margin-top: 42px; border-top: 1px solid var(--line); padding-top: 18px; }
+    .more-ideas h2 { margin: 0 0 14px; font: 600 20px/1.2 var(--serif); }
+    .more-ideas-links { display: flex; flex-wrap: wrap; gap: 10px 25px; }
+    .more-ideas-links a { color: var(--muted); font-size: 12px; transition: color .18s ease; }
+    .more-ideas-links a:hover, .more-ideas-links a:focus-visible { color: var(--red); }
+    footer { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding: 18px 0 22px; color: var(--muted); font-size: 10px; }
+
+    @keyframes rise-in { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+    @media (max-width: 1000px) { .gallery { grid-template-columns: repeat(3, minmax(0, 1fr)); } .shell { padding-right: 4%; padding-left: 4%; } }
+    @media (max-width: 700px) {
+      .shell { padding-right: 20px; padding-left: 20px; }
+      .topbar { height: 65px; }
+      .nav-links { gap: 20px; }
+      .top-note { display: none; }
+      .intro { display: block; padding: 34px 0 25px; }
+      h1 { font-size: 42px; }
+      .intro-copy { max-width: 290px; margin: 13px 0 0; }
+      .toolbar { display: block; padding: 11px 0; }
+      .filters { margin: 0 -20px 11px; padding: 0 20px; }
+      .tools { justify-content: space-between; }
+      .search-wrap { flex: 1; }
+      .search { width: 100%; }
+      .surprise-button { flex: 0 0 auto; }
+      .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 23px 11px; }
+      .image-wrap { aspect-ratio: 4 / 5; }
+      .view-button { opacity: 1; transform: none; left: 7px; right: 7px; bottom: 7px; min-height: 33px; }
+      .idea-name { font-size: 12px; }
+      .idea-tag { font-size: 8px; }
+      .modal-layout { grid-template-columns: 1fr; }
+      .modal-image { height: min(48vh, 340px); }
+      .modal-content { padding: 25px; }
+      .modal-content h2 { font-size: 26px; }
+      .more-ideas-links { gap: 12px 19px; }
+      footer { gap: 15px; }
+    }
+    @media (max-width: 370px) { .brand { font-size: 16px; } .nav-links { gap: 13px; } .nav-link { font-size: 12px; } .filter-button { padding: 8px 11px; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="#explore" aria-label="Nailcraftly home">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-8-4.6-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.4-8 11-8 11Z"/><path d="M12 7v8"/></svg></span>
+        <span>NailCraftly</span>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="nav-link active" href="#explore" id="explore-link">Explore</a>
+        <a class="nav-link" href="#saved" id="saved-link">Saved <span class="saved-count" id="saved-count"></span></a>
+      </nav>
+      <span class="top-note">A little inspo, just for you.</span>
+    </header>
+
+    <main id="explore">
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">The nail idea edit · No. 08</p>
+          <h1 id="page-title">Your next set<br>is <em>right here.</em></h1>
+        </div>
+        <p class="intro-copy">Save the looks you love. Find a little something new. Your next manicure starts here.</p>
+      </section>
+
+      <section aria-label="Browse nail ideas">
+        <div class="toolbar">
+          <div class="filters" role="group" aria-label="Filter by style" id="filters">
+            <button class="filter-button" type="button" data-category="All" aria-pressed="true">All ideas</button>
+            <button class="filter-button" type="button" data-category="Minimal" aria-pressed="false">Minimal</button>
+            <button class="filter-button" type="button" data-category="French" aria-pressed="false">French</button>
+            <button class="filter-button" type="button" data-category="Chrome" aria-pressed="false">Chrome</button>
+            <button class="filter-button" type="button" data-category="Florals" aria-pressed="false">Florals</button>
+            <button class="filter-button" type="button" data-category="Bold" aria-pressed="false">Bold</button>
+          </div>
+          <div class="tools">
+            <label class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+              <input class="search" id="search" type="search" placeholder="Search ideas" aria-label="Search nail ideas">
+            </label>
+            <button class="surprise-button" type="button" id="surprise-button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6l10 16h-6L4 4Z"/><path d="M14 4h6v6M4 20l5-8"/><path d="m17 7 3-3"/></svg>Surprise me</button>
+          </div>
+        </div>
+        <div class="results-line">
+          <h2 class="results-title" id="results-title">Fresh inspiration</h2>
+          <span class="result-count" id="result-count" aria-live="polite"></span>
+        </div>
+        <div class="gallery" id="gallery" aria-live="polite"></div>
+      </section>
+      <section class="more-ideas" aria-labelledby="more-ideas-title">
+        <h2 id="more-ideas-title">Keep exploring</h2>
+        <nav class="more-ideas-links" aria-label="More nail idea articles">
+          <a href="https://nailcraftly.com/nude-nail-ideas/">Nude nail ideas</a>
+          <a href="https://nailcraftly.com/minimalist-nail-ideas/">Minimalist nail ideas</a>
+          <a href="https://nailcraftly.com/french-tip-nail-ideas/">French tip nail ideas</a>
+          <a href="https://nailcraftly.com/chrome-nail-ideas/">Chrome nail ideas</a>
+          <a href="https://nailcraftly.com/summer-nail-ideas/">Summer nail ideas</a>
+        </nav>
+      </section>
+    </main>
+
+    <footer><span>Made for your next favorite set.</span><span>Ideas change. Your style is yours.</span></footer>
+  </div>
+
+  <dialog id="idea-dialog" aria-labelledby="modal-title">
+    <button class="modal-close" type="button" id="modal-close" aria-label="Close details"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    <div class="modal-layout">
+      <img class="modal-image" id="modal-image" alt="">
+      <div class="modal-content">
+        <p class="eyebrow" id="modal-category"></p>
+        <h2 id="modal-title"></h2>
+        <p id="modal-description"></p>
+        <div class="modal-meta" id="modal-meta"></div>
+        <div class="modal-actions">
+          <button class="primary" id="modal-save" type="button">Save this look</button>
+          <button id="modal-done" type="button">Keep browsing</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const ideas = [
+      { id: "petal-french", name: "Petal-tip French", category: "French", tone: "Soft pink · short almond", description: "A sheer blush base with fine, petal-shaped tips. Ask for a milky nude and a whisper-thin white edge.", image: "https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=900&q=85", alt: "Close-up of a polished manicure in soft pink tones" },
+      { id: "cherry-glaze", name: "Cherry glaze", category: "Bold", tone: "Cherry red · medium oval", description: "A glossy, true cherry red that looks just as good on a short oval as it does on a longer shape.", image: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=900&q=85", alt: "Bright red manicure with a glossy finish" },
+      { id: "silver-lining", name: "Silver lining", category: "Chrome", tone: "Pearl chrome · short square", description: "A sheer neutral base topped with a pearly chrome powder. Keep the length short to make the finish feel effortless.", image: "https://images.unsplash.com/photo-1610992015732-2449b76344bc?auto=format&fit=crop&w=900&q=85", alt: "Reflective nail art with a soft metallic sheen" },
+      { id: "barely-there", name: "Barely there", category: "Minimal", tone: "Milky nude · short round", description: "The your-nails-but-better manicure: a sheer pink-beige wash, tidy cuticles, and a healthy glassy top coat.", image: "https://images.unsplash.com/photo-1610992015732-2449b76344bc?auto=format&fit=crop&w=900&q=85&sat=-25", alt: "Clean, natural-looking manicure" },
+      { id: "espresso-swirl", name: "Espresso swirl", category: "Bold", tone: "Chocolate · long almond", description: "Warm espresso and creamy latte curves meet in an easy retro swirl. A sheer nude base keeps the art wearable.", image: "https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=900&q=85&sat=-20", alt: "Artful manicure with warm neutral tones" },
+      { id: "micro-moon", name: "Micro moon", category: "French", tone: "Soft white · short square", description: "A barely-there crescent at the tip gives the classic French a softer, more modern finish. Clean lines, no fuss.", image: "https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=900&q=85&sat=-40", alt: "Modern understated manicure with a neat tip" },
+    ];
+
+    const gallery = document.querySelector("#gallery");
+    const searchInput = document.querySelector("#search");
+    const dialog = document.querySelector("#idea-dialog");
+    const savedLink = document.querySelector("#saved-link");
+    const exploreLink = document.querySelector("#explore-link");
+    let activeCategory = "All";
+    let showingSaved = false;
+    let currentIdea = null;
+    let savedIds = [];
+    try {
+      const stored = JSON.parse(localStorage.getItem("nailcraftly-saved") || "[]");
+      if (Array.isArray(stored)) savedIds = stored.filter((id) => ideas.some((idea) => idea.id === id));
+    } catch {
+      savedIds = [];
+    }
+
+    function updateSavedCount() {
+      document.querySelector("#saved-count").textContent = savedIds.length ? `(${savedIds.length})` : "";
+    }
+
+    function saveIdeas() {
+      try { localStorage.setItem("nailcraftly-saved", JSON.stringify(savedIds)); } catch { showToast("Your browser couldn't save this look."); }
+      updateSavedCount();
+    }
+
+    function getVisibleIdeas() {
+      const query = searchInput.value.trim().toLowerCase();
+      return ideas.filter((idea) => {
+        const matchesCategory = activeCategory === "All" || idea.category === activeCategory;
+        const matchesSaved = !showingSaved || savedIds.includes(idea.id);
+        const matchesSearch = !query || `${idea.name} ${idea.category} ${idea.tone} ${idea.description}`.toLowerCase().includes(query);
+        return matchesCategory && matchesSaved && matchesSearch;
+      });
+    }
+
+    function render() {
+      const visibleIdeas = getVisibleIdeas();
+      gallery.replaceChildren();
+      document.querySelector("#results-title").textContent = showingSaved ? "Your saved looks" : activeCategory === "All" ? "Fresh inspiration" : `${activeCategory} ideas`;
+      document.querySelector("#result-count").textContent = `${visibleIdeas.length} ${visibleIdeas.length === 1 ? "look" : "looks"}`;
+      if (!visibleIdeas.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.innerHTML = `<h2>${showingSaved ? "Your collection starts here." : "No looks found."}</h2><p>${showingSaved ? "Tap the heart on a look to keep it close." : "Try another search or style."}</p>`;
+        gallery.append(empty);
+        return;
+      }
+      visibleIdeas.forEach((idea, index) => {
+        const card = document.createElement("article");
+        card.className = "idea-card";
+        card.style.animationDelay = `${Math.min(index * 45, 270)}ms`;
+        card.innerHTML = `
+          <div class="image-wrap">
+            <img class="idea-image" src="${idea.image}" alt="${idea.alt}" loading="${index < 4 ? "eager" : "lazy"}">
+            <button class="save-button" type="button" aria-label="${savedIds.includes(idea.id) ? "Remove" : "Save"} ${idea.name}" aria-pressed="${savedIds.includes(idea.id)}" data-save="${idea.id}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg>
+            </button>
+            <button class="view-button" type="button" data-view="${idea.id}">View the details</button>
+          </div>
+          <div class="idea-info"><div><h3 class="idea-name">${idea.name}</h3><p class="idea-detail">${idea.tone}</p></div><span class="idea-tag">${idea.category}</span></div>`;
+        gallery.append(card);
+      });
+    }
+
+    function showToast(message) {
+      const toast = document.querySelector("#toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timeout);
+      showToast.timeout = setTimeout(() => toast.classList.remove("show"), 2100);
+    }
+
+    function toggleSaved(id) {
+      const wasSaved = savedIds.includes(id);
+      savedIds = wasSaved ? savedIds.filter((savedId) => savedId !== id) : [...savedIds, id];
+      saveIdeas();
+      render();
+      if (!wasSaved) showToast("Saved to your collection");
+    }
+
+    function openIdea(idea) {
+      currentIdea = idea;
+      document.querySelector("#modal-image").src = idea.image;
+      document.querySelector("#modal-image").alt = idea.alt;
+      document.querySelector("#modal-category").textContent = idea.category;
+      document.querySelector("#modal-title").textContent = idea.name;
+      document.querySelector("#modal-description").textContent = idea.description;
+      document.querySelector("#modal-meta").textContent = `Try this: ${idea.tone}`;
+      document.querySelector("#modal-save").textContent = savedIds.includes(idea.id) ? "Remove from saved" : "Save this look";
+      dialog.showModal();
+    }
+
+    document.querySelector("#filters").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-category]");
+      if (!button) return;
+      activeCategory = button.dataset.category;
+      document.querySelectorAll(".filter-button").forEach((filter) => filter.setAttribute("aria-pressed", String(filter === button)));
+      render();
+    });
+    gallery.addEventListener("click", (event) => {
+      const saveButton = event.target.closest("[data-save]");
+      if (saveButton) { toggleSaved(saveButton.dataset.save); return; }
+      const viewButton = event.target.closest("[data-view]");
+      if (viewButton) openIdea(ideas.find((idea) => idea.id === viewButton.dataset.view));
+    });
+    searchInput.addEventListener("input", render);
+    savedLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      showingSaved = true;
+      savedLink.classList.add("active");
+      exploreLink.classList.remove("active");
+      render();
+    });
+    exploreLink.addEventListener("click", (event) => {
+      event.preventDefault();
+      showingSaved = false;
+      exploreLink.classList.add("active");
+      savedLink.classList.remove("active");
+      render();
+    });
+    document.querySelector("#surprise-button").addEventListener("click", () => {
+      const choices = getVisibleIdeas();
+      if (choices.length) openIdea(choices[Math.floor(Math.random() * choices.length)]);
+      else showToast("Nothing to surprise you with yet.");
+    });
+    document.querySelector("#modal-close").addEventListener("click", () => dialog.close());
+    document.querySelector("#modal-done").addEventListener("click", () => dialog.close());
+    document.querySelector("#modal-save").addEventListener("click", () => {
+      if (!currentIdea) return;
+      toggleSaved(currentIdea.id);
+      document.querySelector("#modal-save").textContent = savedIds.includes(currentIdea.id) ? "Remove from saved" : "Save this look";
+    });
+    dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+    updateSavedCount();
+    render();
+  </script>
+</body>
+</html>

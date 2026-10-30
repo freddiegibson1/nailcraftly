@@ -1,3 +1,3 @@
 # Table of contents
 
-* [Page](README.md)
+* [Sophisticated Brown and Gold Nail Ideas for Any Season - Nail Blog](README.md)

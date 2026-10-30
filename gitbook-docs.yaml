@@ -11,8 +11,8 @@ site:
         directory: ./documentation
     - type: space
       key: space-2
-      title: Imported content
-      path: imported-content
+      title: Radiant Yellow Nail Ideas for a Bright, Chic Look
+      path: radiant-yellow-nail-ideas-bright-chic-look
       draft: true
       content:
         directory: ./imported-content

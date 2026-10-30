@@ -13,6 +13,5 @@ site:
       key: space-2
       title: Radiant Yellow Nail Ideas for a Bright, Chic Look
       path: radiant-yellow-nail-ideas-bright-chic-look
-      draft: true
       content:
         directory: ./imported-content
